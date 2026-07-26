@@ -1,0 +1,60 @@
+-- Camada analítica consumida pelo SQL.
+
+CREATE OR REPLACE VIEW vw_superstore_dashboard AS
+WITH base AS (
+    SELECT
+        "Row ID" AS id_linha,
+        "Order ID" AS id_pedido,
+        "Customer ID" AS id_cliente,
+        "Customer Name" AS cliente,
+        "Segment" AS segmento,
+        "Product ID" AS id_produto,
+        "Product Name" AS produto,
+        "Category" AS categoria,
+        "Sub-Category" AS subcategoria,
+        "Country" AS pais,
+        "City" AS cidade,
+        "State" AS estado,
+        "Postal Code" AS cep,
+        "Region" AS regiao,
+        "Ship Mode" AS modo_envio,
+        TO_DATE("Order Date", 'MM/DD/YYYY') AS data_pedido,
+        TO_DATE("Ship Date", 'MM/DD/YYYY') AS data_envio,
+        "Sales" AS vendas,
+        "Quantity" AS quantidade,
+        "Discount" AS desconto,
+        "Profit" AS lucro
+    FROM superstore
+)
+SELECT
+    id_linha,
+    id_pedido,
+    id_cliente,
+    cliente,
+    segmento,
+    id_produto,
+    produto,
+    categoria,
+    subcategoria,
+    pais,
+    cidade,
+    estado,
+    cep,
+    regiao,
+    data_pedido,
+    data_envio,
+    EXTRACT(YEAR FROM data_pedido) AS ano,
+    EXTRACT(QUARTER FROM data_pedido) AS trimestre,
+    EXTRACT(MONTH FROM data_pedido) AS mes_numero,
+    TO_CHAR(data_pedido, 'Mon') AS mes_nome,
+    EXTRACT(DAY FROM data_pedido) AS dia,
+    TO_CHAR(data_pedido, 'Day') AS dia_semana,
+    TO_CHAR(data_pedido, 'YYYY-MM') AS ano_mes,
+    modo_envio,
+    (data_envio - data_pedido) AS dias_envio,
+    vendas,
+    quantidade,
+    desconto,
+    lucro,
+    ROUND(((lucro / NULLIF(vendas, 0)) * 100)::numeric, 2) AS margem_lucro
+FROM base;
